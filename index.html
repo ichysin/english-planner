@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>英語学習プランナー</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--tx:#1c2233;--mu:#69708a;--ac:#3b5bdb;--ac2:#e7ecff;--ok:#2f9e63;--bd:#e1e4ee;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1b1f2c;--tx:#e8eaf3;--mu:#98a0ba;--ac:#7c93ff;--ac2:#252c4a;--ok:#4cc58a;--bd:#2c3144;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12141c;--card:#1b1f2c;--tx:#e8eaf3;--mu:#98a0ba;--ac:#7c93ff;--ac2:#252c4a;--ok:#4cc58a;--bd:#2c3144;color-scheme:dark}
+*{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 -apple-system,"Hiragino Sans","Noto Sans JP",sans-serif}
+main{max-width:640px;margin:0 auto;padding:16px 16px 90px}
+h1{font-size:20px;margin:4px 0 2px}h2{font-size:16px;margin:0 0 10px}
+.sub{color:var(--mu);font-size:13px;margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;border:0;background:none;color:var(--mu);padding:12px 4px;font:inherit;font-size:13px;cursor:pointer}
+nav button.on{color:var(--ac);font-weight:700}
+label{display:block;font-size:13px;color:var(--mu);margin:10px 0 4px}
+input,select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:6px 12px;border-radius:99px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;font-size:13px;cursor:pointer}
+.chip.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:10px 16px;font:inherit;cursor:pointer}
+.btn.g{background:var(--ac2);color:var(--ac)}
+.task{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--bd)}
+.task:first-of-type{border-top:0}
+.task .t{flex:1}.task .t b{display:block}.task .t span{font-size:12px;color:var(--mu)}
+.task.done .t b{text-decoration:line-through;color:var(--mu)}
+.ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--bd);background:none;color:#fff;cursor:pointer;flex:none}
+.done .ck{background:var(--ok);border-color:var(--ok)}
+.bar{height:10px;background:var(--ac2);border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ok)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px;text-align:center}
+.stat b{font-size:22px;display:block}.stat span{font-size:12px;color:var(--mu)}
+.wk{display:flex;gap:6px;align-items:flex-end;height:90px}
+.wk div{flex:1;text-align:center;font-size:11px;color:var(--mu)}
+.wk i{display:block;background:var(--ac);border-radius:6px 6px 0 0;min-height:3px;margin-bottom:4px}
+.day{padding:8px 0;border-top:1px solid var(--bd);font-size:14px}.day:first-of-type{border-top:0}
+.day.today{background:var(--ac2);border-radius:8px;padding:8px}
+.tm{text-align:center;font-size:40px;font-weight:700;font-variant-numeric:tabular-nums;margin:6px 0}
+.cd{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.row{display:flex;justify-content:space-between;align-items:center;gap:8px}.chip.sm{padding:3px 10px;font-size:12px}.ph{display:inline-block;background:var(--ac2);color:var(--ac);border-radius:99px;padding:2px 10px;font-size:12px;margin-bottom:10px}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<nav id="nav"></nav>
+<script>
+var T={vocab:["パス単2級","でる順パス単2級。前日分の復習→新しい語の順に"],versant:["Versant対策","Versant全パート完全攻略。声に出して練習し、録音して聞き返す"],grammar:["文法・読解","英検2級を一つ一つわかりやすく。1単元ずつ"],textbook:["総合対策","英検2級総合対策教本。大問ごとの解き方を確認"],past:["過去問","過去6回全問題集。時間を計って解く"],listen:["リスニング","過去問の音声でシャドーイング"],write:["英作文","意見・要約を書いて、型に沿って見直す"],vsp:["音読・復唱","昼休みや通勤中に。短い英文を声に出して復唱する"],conv:["オンライン英会話","Versantで練習した型を実際に話してみる"],review:["復習","間違えた問題の解き直し"]};
+var DOW=["日","月","火","水","木","金","土"];
+function key(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function afterDays(n){var d=new Date();d.setDate(d.getDate()+n);return key(d)}
+var S={vd:afterDays(45),ed:afterDays(75),busy:{},done:{},start:key(new Date())};
+try{var r0=localStorage.getItem("engplan2");if(r0){var o=JSON.parse(r0);for(var q in o)S[q]=o[q]}}catch(e){}
+var tab="today",timer=null;
+function save(){try{localStorage.setItem("engplan2",JSON.stringify(S))}catch(e){}}
+function ph(d){return key(d)>S.vd?2:1}
+function plan(d){var k=key(d);if(k>S.ed)return[];var w=d.getDay(),p=ph(d);
+if(S.busy[k])return[{id:"vocab",min:5},{id:p===1?"versant":"past",min:10}];
+if(p===1){if(w===6)return[{id:"versant",min:30},{id:"grammar",min:30},{id:"conv",min:30}];if(w===0)return[{id:"vocab",min:20},{id:"textbook",min:30},{id:"versant",min:20}];if(w%2)return[{id:"vocab",min:10},{id:"vsp",min:15},{id:"versant",min:20}];return[{id:"vocab",min:10},{id:"vsp",min:15},{id:"grammar",min:10},{id:"versant",min:10}]}
+if(w===6)return[{id:"past",min:60},{id:"listen",min:30}];if(w===0)return[{id:"vocab",min:20},{id:"write",min:30},{id:"review",min:30}];if(w%2)return[{id:"vocab",min:10},{id:"listen",min:15},{id:"past",min:20}];return[{id:"vocab",min:10},{id:"listen",min:15},{id:"write",min:20}]}
+function isDone(d,id){var x=S.done[key(d)];return !!(x&&x[id])}
+function setDone(d,id,v){var k=key(d);S.done[k]=S.done[k]||{};S.done[k][id]=v;save()}
+function ratio(d){if(key(d)<S.start)return null;var p=plan(d);if(!p.length)return null;return p.filter(function(t){return isDone(d,t.id)}).length/p.length}
+function ago(n){var d=new Date();d.setDate(d.getDate()+n*-1);return d}
+function streak(){var c=0;for(var i=0;i<200;i++){var r=ratio(ago(i));if(r===null){if(key(ago(i))<S.start)break;continue}if(r===1)c++;else if(i===0)continue;else break}return c}
+function totalMin(){var t=0;for(var i=0;i<200;i++){var d=ago(i);plan(d).forEach(function(x){if(isDone(d,x.id))t+=x.min})}return t}
+function cnt(s){var t=new Date(s+"T00:00:00"),n=new Date();n.setHours(0,0,0,0);return Math.max(0,Math.ceil((t-n)/864e5))}
+function fmt(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+function startTimer(id,min){stopTimer();timer={id:id,left:min*60};timer.h=setInterval(function(){timer.left--;if(timer.left<=0){setDone(new Date(),id,true);stopTimer();render();return}var e=document.getElementById("tm");if(e)e.textContent=fmt(timer.left)},1000);render()}
+function stopTimer(){if(timer&&timer.h)clearInterval(timer.h);timer=null}
+function toggle(id){var d=new Date();setDone(d,id,!isDone(d,id));render()}
+function tb(k){S.busy[k]=!S.busy[k];save();render()}
+function setD(k,v){if(v){S[k]=v;save();render()}}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")}
+function cd(){return '<div class="cd"><div class="stat"><b>'+cnt(S.vd)+'日</b><span>Versantまで</span></div><div class="stat"><b>'+cnt(S.ed)+'日</b><span>英検2級まで</span></div></div>'}
+function viewToday(){var d=new Date(),k=key(d),p=plan(d),b=S.busy[k],h='<h1>今日の学習</h1><p class="sub">'+(d.getMonth()+1)+"月"+d.getDate()+"日（"+DOW[d.getDay()]+"）</p>"+cd();
+if(timer){h+='<div class="card"><h2>'+T[timer.id][0]+'に集中</h2><div class="tm" id="tm">'+fmt(timer.left)+'</div><div style="text-align:center"><button class="btn g" onclick="stopTimer();render()">中止</button> <button class="btn" onclick="setDone(new Date(),timer.id,true);stopTimer();render()">完了にする</button></div></div>'}
+if(!p.length)return h+'<div class="card">英検2級の試験日を過ぎました。お疲れさまでした。</div>';
+var r=ratio(d)||0,tot=p.reduce(function(a,t){return a+t.min},0);
+h+='<div class="card"><span class="ph">'+(ph(d)===1?"フェーズ1：Versant集中＋単語":"フェーズ2：英検2級の過去問仕上げ")+'</span><div class="bar"><i style="width:'+Math.round(r*100)+'%"></i></div><div class="row"><p class="sub" style="margin:6px 0 0">達成率 '+Math.round(r*100)+'% ・ 合計'+tot+'分</p><button class="chip sm'+(b?" on":"")+'" onclick="tb(\''+k+'\')">'+(b?"最小プラン中":"今日は忙しい")+'</button></div></div><div class="card">';
+p.forEach(function(t){var dn=isDone(d,t.id);h+='<div class="task'+(dn?" done":"")+'"><button class="ck" onclick="toggle(\''+t.id+'\')">'+(dn?"✓":"")+'</button><div class="t"><b>'+T[t.id][0]+" "+t.min+'分</b><span>'+T[t.id][1]+'</span></div>'+(dn?"":'<button class="btn g" onclick="startTimer(\''+t.id+"',"+t.min+')">開始</button>')+'</div>'});
+return h+"</div>"}
+function viewWeek(){var h='<h1>週間スケジュール</h1><p class="sub">予定がある日は「予定あり」を押すと15分の最小プランに切り替わります。</p><div class="card">';
+for(var i=0;i<7;i++){var d=new Date();d.setDate(d.getDate()+i);var k=key(d),p=plan(d);h+='<div class="day'+(i===0?" today":"")+'"><div class="row"><b>'+(d.getMonth()+1)+"/"+d.getDate()+"（"+DOW[d.getDay()]+"）</b>"+(p.length?'<button class="chip sm'+(S.busy[k]?" on":"")+'" onclick="tb(\''+k+'\')">予定あり</button>':"")+"</div>"+(p.length?p.map(function(t){return T[t.id][0]+t.min+"分"}).join(" / "):'<span class="sub">終了</span>')+"</div>"}
+return h+"</div>"}
+function viewGoal(){return '<h1>目標とプラン</h1><p class="sub">試験日が決まったら変更してください。計画が自動で更新されます。</p><div class="card"><label>Versantの目標日</label><input type="date" value="'+S.vd+'" onchange="setD(\'vd\',this.value)"><label>英検2級の目標日</label><input type="date" value="'+S.ed+'" onchange="setD(\'ed\',this.value)"></div><div class="card"><h2>フェーズ1：今日〜Versant受験日</h2><p class="sub">平日は朝のパス単10分、昼休みや通勤中の音読・復唱15分、夜のVersant対策が中心です（45分）。土日は予定がなければ90分、2級の文法・読解も進めます。</p><h2>フェーズ2：Versant後〜英検2級</h2><p class="sub">過去問・リスニング・英作文が中心です。平日45分、土曜は過去問を時間を計って解きます。単語は毎日続けます。</p></div>'}
+function viewStats(){var h='<h1>進捗</h1><p class="sub">継続が力になります。</p>'+cd()+'<div class="stats"><div class="stat"><b>'+streak()+'日</b><span>連続達成</span></div><div class="stat"><b>'+totalMin()+'分</b><span>累計学習</span></div><div class="stat"><b>'+Math.round(ratio(new Date())*100||0)+'%</b><span>今日</span></div></div><div class="card"><h2>直近7日の達成率</h2><div class="wk">';
+for(var i=6;i>=0;i--){var d=ago(i),r=ratio(d);h+='<div><i style="height:'+(r===null?3:Math.max(3,Math.round(r*70)))+'px;'+(r===null?"opacity:.3":"")+'"></i>'+DOW[d.getDay()]+"</div>"}
+return h+"</div></div>"}
+function render(){var v={today:viewToday,week:viewWeek,goal:viewGoal,stats:viewStats};document.getElementById("app").innerHTML=v[tab]();var N=[["today","今日"],["week","週間"],["goal","目標"],["stats","進捗"]];document.getElementById("nav").innerHTML=N.map(function(t){return '<button class="'+(tab===t[0]?"on":"")+'" onclick="tab=\''+t[0]+'\';render()">'+t[1]+"</button>"}).join("")}
+render();
+</script>
+</body>
+</html>
+
+
